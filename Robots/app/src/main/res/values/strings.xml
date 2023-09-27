@@ -4,8 +4,7 @@
     <string name="red_robot_msg">Red Robot\'s Turn</string>
     <string name="white_robot_msg">White Robot\'s Turn</string>
     <string name="yellow_robot_msg">Yellow Robot\'s Turn</string>
-    <string name="new_activty_button">Go To New Activity</string>
-    <string name="new_activity_toast">Going to New Activity</string>
+    <string name="reward_button">Make\nPurchase</string>
     <string name="reward_a">Reward A</string>
     <string name="reward_b">Reward B</string>
     <string name="reward_c">Reward C</string>

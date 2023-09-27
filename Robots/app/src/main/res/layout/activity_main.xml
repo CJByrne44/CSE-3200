@@ -51,13 +51,14 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp">
+        android:layout_marginTop="44dp"
+        android:layout_marginLeft="120dp">
 
         <Button
-            android:id="@+id/new_activity_button"
+            android:id="@+id/purchase_rewards_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/new_activty_button" />
+            android:text="@string/reward_button" />
 
     </LinearLayout>
 

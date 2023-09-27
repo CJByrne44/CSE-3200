@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         whiteBotImg = findViewById(R.id.whiteRobot)
         yellowBotImg = findViewById(R.id.yellowRobot)
         messageBox = findViewById(R.id.messageBox)
+        reward_button = findViewById(R.id.purchase_rewards_button)
 
         robotImages = mutableListOf(redBotImg, whiteBotImg, yellowBotImg)
 
@@ -50,8 +51,6 @@ class MainActivity : AppCompatActivity() {
         whiteBotImg.setOnClickListener { toggleImage() }
         yellowBotImg.setOnClickListener { toggleImage() }
         reward_button.setOnClickListener { view: View ->
-            //val intent = Intent(this, RobotPurchase::class.java)
-            //intent.putExtra(EXTRA_ROBOT_ENERGY, robots[robotViewModel.currentTurn - 1].myEnergy)
             val intent = RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy)
             startActivity(intent)
         }

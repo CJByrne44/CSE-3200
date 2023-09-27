@@ -9,7 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
-const val EXTRA_ROBOT_ENERGY = "com.connerbyrne.android.robotshomework2.current_robot_energy"
+const val EXTRA_ROBOT_ENERGY = "com.connerbyrne.android.robots.current_robot_energy"
 
 class RobotPurchase : AppCompatActivity() {
 
