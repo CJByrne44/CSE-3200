@@ -1,52 +1,96 @@
 package com.ConnerByrne.robots
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var redBotImg : ImageView
+    private lateinit var whiteBotImg : ImageView
+    private lateinit var yellowBotImg : ImageView
+    private lateinit var messageBox : TextView
+    private lateinit var reward_button : Button
 
-    private lateinit var redImage : ImageView
-    private lateinit var whiteImage : ImageView
-    private lateinit var yellowImage : ImageView
-    private lateinit var rotateClockImage : ImageView
-    private lateinit var rotateCounterImage : ImageView
-    var turnCount = -1
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private lateinit var robotImages : MutableList<ImageView>
+
+    private val robots = listOf(
+        Robot(R.string.red_robot_msg, false,
+            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0),
+        Robot(R.string.white_robot_msg, false,
+            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0),
+        Robot(R.string.yellow_robot_msg, false,
+            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0))
+
+    private val robotViewModel: RobotViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState : Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        redImage = findViewById(R.id.redRobot)
-        whiteImage = findViewById(R.id.whiteRobot)
-        yellowImage = findViewById(R.id.yellowRobot)
+        redBotImg = findViewById(R.id.redRobot)
+        whiteBotImg = findViewById(R.id.whiteRobot)
+        yellowBotImg = findViewById(R.id.yellowRobot)
+        messageBox = findViewById(R.id.messageBox)
 
-        rotateClockImage = findViewById(R.id.rotateClockwise)
-        rotateCounterImage = findViewById(R.id.rotateCounterClockwise)
+        robotImages = mutableListOf(redBotImg, whiteBotImg, yellowBotImg)
 
-        rotateClockImage.setOnClickListener { view : View -> toggleImage(true) }
-        rotateCounterImage.setOnClickListener { view : View -> toggleImage(false) }
+        // Fix model if rotating screen
+        setRobotsTurn()
+        setRobotsImages()
+        updateMessageBox()
+
+        redBotImg.setOnClickListener { toggleImage() }
+        whiteBotImg.setOnClickListener { toggleImage() }
+        yellowBotImg.setOnClickListener { toggleImage() }
+        reward_button.setOnClickListener { view: View ->
+            //val intent = Intent(this, RobotPurchase::class.java)
+            //intent.putExtra(EXTRA_ROBOT_ENERGY, robots[robotViewModel.currentTurn - 1].myEnergy)
+            val intent = RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy)
+            startActivity(intent)
+        }
+
+        Log.d(TAG, "Got a RobotViewModel : $robotViewModel")
     }
 
-    private fun toggleImage(clockwise : Boolean){
-        if (turnCount == -1) {
-            turnCount = 1 // Initial state should both be reds
+    private fun toggleImage() {
+        robotViewModel.advanceTurn()
+        setRobotsTurn()
+        setRobotsImages()
+        updateMessageBox()
+    }
+
+    private fun setRobotsTurn() {
+        if (robotViewModel.currentTurn == 0)
+            return
+        for (robot in robots) { robot.myTurn = false }
+        robots[robotViewModel.currentTurn - 1].myTurn = true
+        robots[robotViewModel.currentTurn - 1].myEnergy += 1
+    }
+
+    private fun setRobotsImages() {
+        if (robotViewModel.currentTurn == 0)
+            return
+        for (indy in robots.indices) {
+            if (robots[indy].myTurn) {
+                robotImages[indy].setImageResource(robots[indy].largeRobot)
+            } else {
+                robotImages[indy].setImageResource(robots[indy].smallRobot)
+            }
         }
-        else if (clockwise) { turnCount-- }
-        else { turnCount++ }
-        if (turnCount > 2) {
-            turnCount = 0
-        }
-        if (turnCount < 0) {
-            turnCount = 2
-        }
-        redImage.setImageResource(R.drawable.king_of_detroit_robot_red_small)
-        whiteImage.setImageResource(R.drawable.king_of_detroit_robot_white_small)
-        yellowImage.setImageResource(R.drawable.king_of_detroit_robot_yellow_small)
-        when (turnCount) {
-            1 -> { redImage.setImageResource(R.drawable.king_of_detroit_robot_red_large) }
-            2 -> { whiteImage.setImageResource(R.drawable.king_of_detroit_robot_white_large) }
-            0 -> { yellowImage.setImageResource(R.drawable.king_of_detroit_robot_yellow_large) }
-        }
+    }
+
+    private fun updateMessageBox() {
+        if (robotViewModel.currentTurn == 0)
+            return
+        messageBox.setText(robots[robotViewModel.currentTurn - 1].robotMessageResource)
     }
 }
+
+

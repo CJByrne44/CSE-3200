@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -39,35 +40,24 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/messageBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:text="@string/message_box"
+        android:textAlignment="center"
+        android:textSize="24sp" />
 
-        <ImageButton
-            android:id="@+id/rotateClockwise"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp">
+
+        <Button
+            android:id="@+id/new_activity_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/beige_circle"
-            android:src="@drawable/rot_clockwise"
-            android:layout_marginHorizontal="32dp"
-            android:padding="20dp"/>
-
-        <ImageButton
-            android:id="@+id/rotateCounterClockwise"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageButton1"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/beige_circle"
-            android:src="@drawable/rot_counter"
-            android:layout_marginHorizontal="32dp"
-            android:padding="20dp"/>
-
-        <!-- Add more views or customize the layout as needed -->
+            android:text="@string/new_activty_button" />
 
     </LinearLayout>
 
