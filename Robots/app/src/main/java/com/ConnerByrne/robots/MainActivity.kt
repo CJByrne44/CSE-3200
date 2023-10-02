@@ -1,11 +1,14 @@
 package com.ConnerByrne.robots
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 
@@ -19,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var reward_button : Button
 
     private lateinit var robotImages : MutableList<ImageView>
+    private var latestPurchaseCost = 0;
 
     private val robots = listOf(
         Robot(R.string.red_robot_msg, false,
@@ -52,10 +56,18 @@ class MainActivity : AppCompatActivity() {
         yellowBotImg.setOnClickListener { toggleImage() }
         reward_button.setOnClickListener { view: View ->
             val intent = RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy)
-            startActivity(intent)
+            purchaseLauncher.launch(intent)
         }
 
         Log.d(TAG, "Got a RobotViewModel : $robotViewModel")
+    }
+
+    private val purchaseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // capture the data gor a toast
+            latestPurchaseCost = result.data?.getIntExtra(EXTRA_ROBOT_PURCHASE_MADE, 0) ?: 0
+
+        }
     }
 
     private fun toggleImage() {

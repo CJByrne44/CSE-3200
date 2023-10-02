@@ -1,5 +1,6 @@
 package com.ConnerByrne.robots
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 const val EXTRA_ROBOT_ENERGY = "com.connerbyrne.android.robots.current_robot_energy"
+const val EXTRA_ROBOT_PURCHASE_MADE = "com.connerbyrne.android.robots.robot_purchase"
 
 class RobotPurchase : AppCompatActivity() {
 
@@ -44,6 +46,12 @@ class RobotPurchase : AppCompatActivity() {
         }
     }
 
+    private fun setWhichItemPurchased(robotPurchaseMade : Int) {
+        val data = Intent().apply{
+            putExtra(EXTRA_ROBOT_PURCHASE_MADE, robotPurchaseMade)
+        }
+        setResult(Activity.RESULT_OK, data)
+    }
 
     companion object {
         fun newIntent(packageContext : Context, robot_energy : Int) : Intent {
