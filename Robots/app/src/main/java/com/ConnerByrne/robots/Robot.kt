@@ -5,4 +5,4 @@ data class Robot(
     val largeRobot : Int,
     val smallRobot : Int,
     var myEnergy : Int,
-    var lastPurchaseResource : Int,)
+    var purchases : MutableList<Boolean>)

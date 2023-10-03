@@ -23,14 +23,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var robotImages : MutableList<ImageView>
     private var latestPurchaseResource = 0;
-    private var newRobotEnergy = 0;
     private val robots = listOf(
         Robot(R.string.red_robot_msg, false,
-            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0, 0),
+            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0, MutableList(7) {false}),
         Robot(R.string.white_robot_msg, false,
-            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0, 0),
+            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0, MutableList(7) {false}),
         Robot(R.string.yellow_robot_msg, false,
-            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0, 0))
+            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0, MutableList(7) {false}))
 
     private val robotViewModel: RobotViewModel by viewModels()
 
@@ -55,7 +54,17 @@ class MainActivity : AppCompatActivity() {
         whiteBotImg.setOnClickListener { toggleImage() }
         yellowBotImg.setOnClickListener { toggleImage() }
         reward_button.setOnClickListener { view: View ->
-            val intent =  RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy, 0)
+            Log.d(TAG, robotViewModel.rewardsAvailable.toString())
+            val intent =  RobotPurchase.newIntent(this,
+                robots[robotViewModel.currentTurn - 1].myEnergy,
+                robotViewModel.currentTurn,
+                robotViewModel.rewardsAvailable[0],
+                robotViewModel.rewardsAvailable[1],
+                robotViewModel.rewardsAvailable[2],
+                robotViewModel.rewardsAvailable[3],
+                robotViewModel.rewardsAvailable[4],
+                robotViewModel.rewardsAvailable[5],
+                robotViewModel.rewardsAvailable[6])
             purchaseLauncher.launch(intent)
         }
 
@@ -68,10 +77,30 @@ class MainActivity : AppCompatActivity() {
     private val purchaseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // capture the data for a toast
-            latestPurchaseResource = result.data?.getIntExtra(EXTRA_ROBOT_PURCHASE_MADE, 0) ?: 0
-            newRobotEnergy = result.data?.getIntExtra(EXTRA_ROBOT_ENERGY, 0) ?: 0
-            robots[robotViewModel.currentTurn - 1].myEnergy = newRobotEnergy
-            robots[robotViewModel.currentTurn - 1].lastPurchaseResource = R.string.reward_a
+            val newRobotEnergy = result.data?.getIntExtra(EXTRA_ROBOT_ENERGY, 0) ?: 0
+            val purchasedRewardA = result.data?.getBooleanExtra(EXTRA_REWARD_A, false) ?: false
+            val purchasedRewardB = result.data?.getBooleanExtra(EXTRA_REWARD_B, false) ?: false
+            val purchasedRewardC = result.data?.getBooleanExtra(EXTRA_REWARD_C, false) ?: false
+            val purchasedRewardD = result.data?.getBooleanExtra(EXTRA_REWARD_D, false) ?: false
+            val purchasedRewardE = result.data?.getBooleanExtra(EXTRA_REWARD_E, false) ?: false
+            val purchasedRewardF = result.data?.getBooleanExtra(EXTRA_REWARD_F, false) ?: false
+            val purchasedRewardG = result.data?.getBooleanExtra(EXTRA_REWARD_G, false) ?: false
+            var currentRobot = robots[robotViewModel.currentTurn - 1]
+            currentRobot.myEnergy = newRobotEnergy
+            currentRobot.purchases[0] = purchasedRewardA || currentRobot.purchases[0]
+            if (purchasedRewardA) robotViewModel.removeReward(0)
+            currentRobot.purchases[1] = purchasedRewardB || currentRobot.purchases[1]
+            if (purchasedRewardB) robotViewModel.removeReward(1)
+            currentRobot.purchases[2] = purchasedRewardC || currentRobot.purchases[2]
+            if (purchasedRewardC) robotViewModel.removeReward(2)
+            currentRobot.purchases[3] = purchasedRewardD || currentRobot.purchases[3]
+            if (purchasedRewardD) robotViewModel.removeReward(3)
+            currentRobot.purchases[4] = purchasedRewardE || currentRobot.purchases[4]
+            if (purchasedRewardE) robotViewModel.removeReward(4)
+            currentRobot.purchases[5] = purchasedRewardF || currentRobot.purchases[5]
+            if (purchasedRewardF) robotViewModel.removeReward(5)
+            currentRobot.purchases[6] = purchasedRewardG || currentRobot.purchases[6]
+            if (purchasedRewardG) robotViewModel.removeReward(6)
         }
     }
 
@@ -88,9 +117,21 @@ class MainActivity : AppCompatActivity() {
         for (robot in robots) { robot.myTurn = false }
         robots[robotViewModel.currentTurn - 1].myTurn = true
         robots[robotViewModel.currentTurn - 1].myEnergy += 1
-        if (robots[robotViewModel.currentTurn - 1].lastPurchaseResource != 0) {
-            Toast.makeText(this, robots[robotViewModel.currentTurn - 1].lastPurchaseResource, Toast.LENGTH_SHORT).show()
+        var toastText = ""
+        for ((index, rewardBoolean) in robots[robotViewModel.currentTurn - 1].purchases.withIndex()) {
+            if (!rewardBoolean) continue
+            if  (toastText.length != 0) toastText += ", "
+            when (index) {
+                0 -> toastText += "A"
+                1 -> toastText += "B"
+                2 -> toastText += "C"
+                3 -> toastText += "D"
+                4 -> toastText += "E"
+                5 -> toastText += "F"
+                6 -> toastText += "G"
+            }
         }
+        if  (toastText.length != 0) Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show()
     }
 
     private fun setRobotsImages() {

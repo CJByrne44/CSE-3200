@@ -22,30 +22,13 @@ class RobotViewModel : ViewModel() {
     val currentTurn : Int
         get() = turnCount
 
-    private var rewards = mutableListOf(
-        Reward(R.string.reward_a, 1, 1),
-        Reward(R.string.reward_b, 2, 2),
-        Reward(R.string.reward_c, 3, 3),
-        Reward(R.string.reward_d, 3, 4),
-        Reward(R.string.reward_e, 4, 5),
-        Reward(R.string.reward_f, 4, 6),
-        Reward(R.string.reward_g, 7, 7))
+    private var rewardsBooleans = MutableList(7) {true}
 
-    val rewardsList : List<Reward>
-        get() = rewards
+    val rewardsAvailable : List<Boolean>
+        get() = rewardsBooleans
 
-    val numberOfRewards : Int
-        get() = rewards.size
-
-    fun randomizedRewards(): List<Reward> {
-        if (rewards.size < 3) {
-            return rewards.toList()
-        }
-        return rewards.shuffled().take(3).sortedBy { it.index }
-    }
-
-    fun removeReward(reward : Reward) {
-        rewards.remove(reward)
+    fun removeReward(reward : Int) {
+        rewardsBooleans[reward] = false
     }
 
     override fun onCleared() {
