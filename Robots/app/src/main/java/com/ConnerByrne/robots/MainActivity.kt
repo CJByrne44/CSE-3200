@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.ActivityResult
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -22,15 +22,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var reward_button : Button
 
     private lateinit var robotImages : MutableList<ImageView>
-    private var latestPurchaseCost = 0;
-
+    private var latestPurchaseResource = 0;
+    private var newRobotEnergy = 0;
     private val robots = listOf(
         Robot(R.string.red_robot_msg, false,
-            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0),
+            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0, 0),
         Robot(R.string.white_robot_msg, false,
-            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0),
+            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0, 0),
         Robot(R.string.yellow_robot_msg, false,
-            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0))
+            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0, 0))
 
     private val robotViewModel: RobotViewModel by viewModels()
 
@@ -55,18 +55,23 @@ class MainActivity : AppCompatActivity() {
         whiteBotImg.setOnClickListener { toggleImage() }
         yellowBotImg.setOnClickListener { toggleImage() }
         reward_button.setOnClickListener { view: View ->
-            val intent = RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy)
+            val intent =  RobotPurchase.newIntent(this, robots[robotViewModel.currentTurn - 1].myEnergy, 0)
             purchaseLauncher.launch(intent)
         }
+
+        if (robotViewModel.currentTurn == 0)
+            return
 
         Log.d(TAG, "Got a RobotViewModel : $robotViewModel")
     }
 
     private val purchaseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // capture the data gor a toast
-            latestPurchaseCost = result.data?.getIntExtra(EXTRA_ROBOT_PURCHASE_MADE, 0) ?: 0
-
+            // capture the data for a toast
+            latestPurchaseResource = result.data?.getIntExtra(EXTRA_ROBOT_PURCHASE_MADE, 0) ?: 0
+            newRobotEnergy = result.data?.getIntExtra(EXTRA_ROBOT_ENERGY, 0) ?: 0
+            robots[robotViewModel.currentTurn - 1].myEnergy = newRobotEnergy
+            robots[robotViewModel.currentTurn - 1].lastPurchaseResource = R.string.reward_a
         }
     }
 
@@ -83,6 +88,9 @@ class MainActivity : AppCompatActivity() {
         for (robot in robots) { robot.myTurn = false }
         robots[robotViewModel.currentTurn - 1].myTurn = true
         robots[robotViewModel.currentTurn - 1].myEnergy += 1
+        if (robots[robotViewModel.currentTurn - 1].lastPurchaseResource != 0) {
+            Toast.makeText(this, robots[robotViewModel.currentTurn - 1].lastPurchaseResource, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setRobotsImages() {

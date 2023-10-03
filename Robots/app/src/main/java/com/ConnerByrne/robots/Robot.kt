@@ -4,4 +4,5 @@ data class Robot(
     var myTurn : Boolean,
     val largeRobot : Int,
     val smallRobot : Int,
-    var myEnergy : Int)
+    var myEnergy : Int,
+    var lastPurchaseResource : Int,)
