@@ -19,6 +19,17 @@ class RobotViewModel : ViewModel() {
         }
     }
 
+    private val robots = listOf(
+        Robot(R.string.red_robot_msg, false,
+            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0, MutableList(7) {false}),
+        Robot(R.string.white_robot_msg, false,
+            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0, MutableList(7) {false}),
+        Robot(R.string.yellow_robot_msg, false,
+            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0, MutableList(7) {false}))
+
+    val robotsArray : List<Robot>
+        get() = robots
+
     val currentTurn : Int
         get() = turnCount
 

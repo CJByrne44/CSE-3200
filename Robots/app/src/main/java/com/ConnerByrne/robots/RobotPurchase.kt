@@ -27,21 +27,14 @@ const val EXTRA_REWARD_G = "com.connerbyrne.android.robots.reward_g"
 private lateinit var binding : ActivityRobotPurchaseBinding
 private lateinit var purchaseIntent : Intent;
 
-private var rewards = mutableListOf(
-    Reward(R.string.reward_a, EXTRA_REWARD_A, 1, 1, false),
-    Reward(R.string.reward_b, EXTRA_REWARD_B, 2, 2, false),
-    Reward(R.string.reward_c, EXTRA_REWARD_C, 3, 3, false),
-    Reward(R.string.reward_d, EXTRA_REWARD_D, 3, 4, false),
-    Reward(R.string.reward_e, EXTRA_REWARD_E, 4, 5, false),
-    Reward(R.string.reward_f, EXTRA_REWARD_F, 4, 6, false),
-    Reward(R.string.reward_g, EXTRA_REWARD_G, 7, 7, false))
 
 class RobotPurchase : AppCompatActivity() {
 
 
-    private lateinit var activeRewards : List<Reward>
     private var robot_energy = 0
     private var robot_index = 0
+
+    private val purchaseViewModel: PurchaseViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,15 +50,7 @@ class RobotPurchase : AppCompatActivity() {
             3 -> binding.purchasingRobotImage.setImageResource(R.drawable.king_of_detroit_robot_yellow_large)
         }
 
-        val rewardsToKeep = mutableListOf<Reward>()
-        for (reward in rewards) {
-            if (intent.getBooleanExtra(reward.extraResource, true)) rewardsToKeep.add(reward)
-        }
-        rewards.clear()
-        rewards.addAll(rewardsToKeep)
-        Log.d("RobotPurchase", rewards.toString())
-
-        activeRewards = randomizeRewards(rewards)
+        purchaseViewModel.removeUnvailableRewards(intent)
         updateRewardGraphics()
 
 
@@ -84,13 +69,13 @@ class RobotPurchase : AppCompatActivity() {
         binding.robotEnergyToSpend.setText(robot_energy.toString())
 
         binding.buyReward1.setOnClickListener{view : View ->
-            makePurchase(activeRewards[0])
+            makePurchase(purchaseViewModel.activeRewardsArray[0])
         }
         binding.buyReward2.setOnClickListener{view : View ->
-            makePurchase(activeRewards[1])
+            makePurchase(purchaseViewModel.activeRewardsArray[1])
         }
         binding.buyReward3.setOnClickListener{view : View ->
-            makePurchase(activeRewards[2])
+            makePurchase(purchaseViewModel.activeRewardsArray[2])
         }
     }
 
@@ -124,32 +109,24 @@ class RobotPurchase : AppCompatActivity() {
         binding.reward2Layout.visibility = View.INVISIBLE
         binding.reward1Layout.visibility = View.INVISIBLE
 
-        if (activeRewards.size > 2) {
-            binding.buyReward3.text = getString(activeRewards[2].rewardMessageResource)
-            binding.reward3EnergyCost.text = activeRewards[2].rewardCost.toString()
+        if (purchaseViewModel.activeRewardsArray.size > 2) {
+            binding.buyReward3.text = getString(purchaseViewModel.activeRewardsArray[2].rewardMessageResource)
+            binding.reward3EnergyCost.text = purchaseViewModel.activeRewardsArray[2].rewardCost.toString()
             binding.reward3Layout.visibility = View.VISIBLE
         }
 
-        if (activeRewards.size > 1) {
-            binding.buyReward2.text = getString(activeRewards[1].rewardMessageResource)
-            binding.reward2EnergyCost.text = activeRewards[1].rewardCost.toString()
+        if (purchaseViewModel.activeRewardsArray.size > 1) {
+            binding.buyReward2.text = getString(purchaseViewModel.activeRewardsArray[1].rewardMessageResource)
+            binding.reward2EnergyCost.text = purchaseViewModel.activeRewardsArray[1].rewardCost.toString()
             binding.reward2Layout.visibility = View.VISIBLE
         }
 
-        if (activeRewards.size > 0) {
-            binding.buyReward1.text = getString(activeRewards[0].rewardMessageResource)
-            binding.reward1EnergyCost.text = activeRewards[0].rewardCost.toString()
+        if (purchaseViewModel.activeRewardsArray.size > 0) {
+            binding.buyReward1.text = getString(purchaseViewModel.activeRewardsArray[0].rewardMessageResource)
+            binding.reward1EnergyCost.text = purchaseViewModel.activeRewardsArray[0].rewardCost.toString()
             binding.reward1Layout.visibility = View.VISIBLE
         }
     }
-
-    fun randomizeRewards(rewards : List<Reward>): List<Reward> {
-        if (rewards.size < 3) {
-            return rewards.toList()
-        }
-        return rewards.shuffled().take(3).sortedBy { it.index }
-    }
-
     private fun makePurchase(reward: Reward) {
         if (robot_energy >= reward.rewardCost) {
             val s2 = getString(R.string.purchased)
@@ -159,9 +136,9 @@ class RobotPurchase : AppCompatActivity() {
             Toast.makeText(this, s3, Toast.LENGTH_SHORT).show()
 
 
-            rewards.remove(reward)
+            purchaseViewModel.removeReward(reward)
             purchaseIntent.putExtra(reward.extraResource, true)
-            activeRewards = randomizeRewards(rewards)
+            purchaseIntent.putExtra(EXTRA_ROBOT_ENERGY, robot_energy)
             updateRewardGraphics()
             setResult(Activity.RESULT_OK, purchaseIntent)
         } else {

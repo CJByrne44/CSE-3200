@@ -23,13 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var robotImages : MutableList<ImageView>
     private var latestPurchaseResource = 0;
-    private val robots = listOf(
-        Robot(R.string.red_robot_msg, false,
-            R.drawable.king_of_detroit_robot_red_large, R.drawable.king_of_detroit_robot_red_small, 0, MutableList(7) {false}),
-        Robot(R.string.white_robot_msg, false,
-            R.drawable.king_of_detroit_robot_white_large, R.drawable.king_of_detroit_robot_white_small, 0, MutableList(7) {false}),
-        Robot(R.string.yellow_robot_msg, false,
-            R.drawable.king_of_detroit_robot_yellow_large, R.drawable.king_of_detroit_robot_yellow_small, 0, MutableList(7) {false}))
 
     private val robotViewModel: RobotViewModel by viewModels()
 
@@ -56,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         reward_button.setOnClickListener { view: View ->
             Log.d(TAG, robotViewModel.rewardsAvailable.toString())
             val intent =  RobotPurchase.newIntent(this,
-                robots[robotViewModel.currentTurn - 1].myEnergy,
+                robotViewModel.robotsArray[robotViewModel.currentTurn - 1].myEnergy,
                 robotViewModel.currentTurn,
                 robotViewModel.rewardsAvailable[0],
                 robotViewModel.rewardsAvailable[1],
@@ -85,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             val purchasedRewardE = result.data?.getBooleanExtra(EXTRA_REWARD_E, false) ?: false
             val purchasedRewardF = result.data?.getBooleanExtra(EXTRA_REWARD_F, false) ?: false
             val purchasedRewardG = result.data?.getBooleanExtra(EXTRA_REWARD_G, false) ?: false
-            var currentRobot = robots[robotViewModel.currentTurn - 1]
+            var currentRobot = robotViewModel.robotsArray[robotViewModel.currentTurn - 1]
             currentRobot.myEnergy = newRobotEnergy
             currentRobot.purchases[0] = purchasedRewardA || currentRobot.purchases[0]
             if (purchasedRewardA) robotViewModel.removeReward(0)
@@ -114,11 +107,11 @@ class MainActivity : AppCompatActivity() {
     private fun setRobotsTurn() {
         if (robotViewModel.currentTurn == 0)
             return
-        for (robot in robots) { robot.myTurn = false }
-        robots[robotViewModel.currentTurn - 1].myTurn = true
-        robots[robotViewModel.currentTurn - 1].myEnergy += 1
+        for (robot in robotViewModel.robotsArray) { robot.myTurn = false }
+        robotViewModel.robotsArray[robotViewModel.currentTurn - 1].myTurn = true
+        robotViewModel.robotsArray[robotViewModel.currentTurn - 1].myEnergy += 1
         var toastText = ""
-        for ((index, rewardBoolean) in robots[robotViewModel.currentTurn - 1].purchases.withIndex()) {
+        for ((index, rewardBoolean) in robotViewModel.robotsArray[robotViewModel.currentTurn - 1].purchases.withIndex()) {
             if (!rewardBoolean) continue
             if  (toastText.length != 0) toastText += ", "
             when (index) {
@@ -137,11 +130,11 @@ class MainActivity : AppCompatActivity() {
     private fun setRobotsImages() {
         if (robotViewModel.currentTurn == 0)
             return
-        for (indy in robots.indices) {
-            if (robots[indy].myTurn) {
-                robotImages[indy].setImageResource(robots[indy].largeRobot)
+        for (indy in robotViewModel.robotsArray.indices) {
+            if (robotViewModel.robotsArray[indy].myTurn) {
+                robotImages[indy].setImageResource(robotViewModel.robotsArray[indy].largeRobot)
             } else {
-                robotImages[indy].setImageResource(robots[indy].smallRobot)
+                robotImages[indy].setImageResource(robotViewModel.robotsArray[indy].smallRobot)
             }
         }
     }
@@ -149,7 +142,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateMessageBox() {
         if (robotViewModel.currentTurn == 0)
             return
-        messageBox.setText(robots[robotViewModel.currentTurn - 1].robotMessageResource)
+        messageBox.setText(robotViewModel.robotsArray[robotViewModel.currentTurn - 1].robotMessageResource)
     }
 }
 
