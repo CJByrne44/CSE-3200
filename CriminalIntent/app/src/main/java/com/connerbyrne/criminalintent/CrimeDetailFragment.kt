@@ -12,8 +12,20 @@ import java.util.Date
 import java.util.UUID
 
 class CrimeDetailFragment : Fragment() {
-    private lateinit var binding : FragmentCrimeDetailBinding
+    private var _binding : FragmentCrimeDetailBinding? = null
+    private val binding : FragmentCrimeDetailBinding
+        get() = checkNotNull(_binding) {
+            "error: Can we see the view"
+            return _binding.root
+        }
+
     private lateinit var crime : Crime
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
