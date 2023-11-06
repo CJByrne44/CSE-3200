@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:xmls="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/crimeListFragment">
+
+    <fragment
+        android:id="@+id/crimeListFragment"
+        android:name="com.connerbyrne.criminalintent.CrimeListFragment"
+        android:label="CrimeListFragment"
+        android:layout="@layout/fragment_crime_list" >
+        <action
+            android:id="@+id/show_crime_detail"
+            app:destination="@id/crimeDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/crimeDetailFragment"
+        android:name="com.connerbyrne.criminalintent.CrimeDetailFragment"
+        android:label="CrimeDetailFragment"
+        android:layout="@layout/fragment_crime_detail"/>
+</navigation>

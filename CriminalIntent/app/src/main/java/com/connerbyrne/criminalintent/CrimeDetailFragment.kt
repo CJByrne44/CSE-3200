@@ -12,14 +12,13 @@ import java.util.Date
 import java.util.UUID
 
 class CrimeDetailFragment : Fragment() {
-    private var _binding : FragmentCrimeDetailBinding? = null
-    private val binding : FragmentCrimeDetailBinding
+    private var _binding: FragmentCrimeDetailBinding? = null
+    private val binding: FragmentCrimeDetailBinding
         get() = checkNotNull(_binding) {
             "error: Can we see the view"
-            return _binding.root
         }
 
-    private lateinit var crime : Crime
+    private lateinit var crime: Crime
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -38,22 +37,22 @@ class CrimeDetailFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater : LayoutInflater,
+        inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCrimeDetailBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentCrimeDetailBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply{
+        binding.apply {
             crimeTitle.doOnTextChanged { text, _, _, _ ->
                 crime = crime.copy(title = text.toString())
             }
-            
+
 //            crimeDate.setText(crime.title)
 //            crimeDate.setOnClickListener {view : View ->
 //                crimeDate.setText(crime.title)
@@ -63,8 +62,9 @@ class CrimeDetailFragment : Fragment() {
                 crimeDate.isEnabled = false
             }
 
-            crimeSolved.setOnCheckedChangeListener { _,isChecked ->
+            crimeSolved.setOnCheckedChangeListener { _, isChecked ->
                 crime = crime.copy(isSolved = isChecked)
+            }
         }
     }
 }
