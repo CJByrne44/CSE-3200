@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.connerbyrne.criminalintent"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.connerbyrne.criminalintent"

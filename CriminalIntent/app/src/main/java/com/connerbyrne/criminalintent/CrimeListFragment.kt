@@ -26,12 +26,6 @@ class CrimeListFragment : Fragment() {
             "error: Can we see the view"
         }
 
-    override fun onCreate(savedInstanceState : Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        Log.d(TAG, "Num Crimes: ${crimeListViewModel.crimes.size}")
-    }
-
     override fun onCreateView(
         inflater : LayoutInflater,
         container: ViewGroup?,
@@ -39,9 +33,6 @@ class CrimeListFragment : Fragment() {
     ): View? {
         _binding = FragmentCrimeListBinding.inflate(layoutInflater, container, false)
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-        val crimes = crimeListViewModel.crimes
-        val adapter = CrimeListAdapter(crimes)
-        binding.crimeRecyclerView.adapter = adapter
 
         return binding.root
     }
@@ -52,7 +43,6 @@ class CrimeListFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                //val crimes = crimeListViewModel.loadCrimes()
                 crimeListViewModel.crimes.collect {crimes ->
                     binding.crimeRecyclerView.adapter = CrimeListAdapter(crimes) {
                         findNavController().navigate(R.id.show_crime_detail)
