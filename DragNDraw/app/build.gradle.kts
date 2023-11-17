@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.connerbyrne.dragndraw"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.connerbyrne.dragndraw"
