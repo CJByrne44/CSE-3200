@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -20,6 +21,9 @@ class BoxDrawingView(
 ): View(context, attrs) {
     private var currentBox : Box? = null
     private val boxes = mutableListOf<Box>()
+
+    private var drawCount = 0
+    private val maxDrawCount = 3
     
     private val boxPaint = Paint().apply {
         color = 0x22ff0000
@@ -33,12 +37,42 @@ class BoxDrawingView(
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawPaint(backgroundPaint)
-        boxes.forEach {box ->
-            canvas.drawRect(box.left, box.top, box.right, box.bottom, boxPaint)
+        boxes.forEach { box ->
+            // Draw square or circle based on width and height
+            var left = box.left;
+            var top = box.top;
+            var right = box.right;
+            var bottom = box.bottom;
+
+            if (box.end.x > box.start.x) {
+                left = box.start.x
+                right = left + Math.min(box.height, box.width)
+            } else {
+                right = box.start.x
+                left = right - Math.min(box.height, box.width)
+            }
+            if (box.end.y > box.start.y) {
+                top = box.start.y
+                bottom = top + Math.min(box.height, box.width)
+            } else {
+                bottom = box.start.y
+                top = bottom - Math.min(box.height, box.width)
+            }
+            if (box.width > box.height) {
+                canvas.drawRect(left, top, right, bottom, boxPaint)
+            }
+            else {
+                canvas.drawOval(left, top, right, bottom, boxPaint)
+            }
         }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        if (drawCount >= maxDrawCount) {
+            return true
+        }
+
         val current = PointF(event.x, event.y)
         var action = ""
         when (event.action) {
@@ -55,6 +89,7 @@ class BoxDrawingView(
             MotionEvent.ACTION_UP -> {
                 action = "ACTION_UP"
                 updateCurrentBox(current)
+                drawCount++;
                 currentBox = null
             }
             MotionEvent.ACTION_CANCEL -> {
@@ -62,7 +97,6 @@ class BoxDrawingView(
                 currentBox = null
             }
         }
-        Log.d(TAG, "$action at x = ${current.x}, y = ${current.y}")
         return true
     }
 
