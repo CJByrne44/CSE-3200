@@ -23,7 +23,9 @@ class CrimeRepository private constructor(
         context.applicationContext,
         CrimeDatabase::class.java,
         DATABASE_NAME
-    ).addMigrations(migration_1_2).build()
+    ).createFromAsset(DATABASE_NAME)
+        .addMigrations(migration_1_2)
+        .build()
 
     fun getCrimes(): Flow<List<Crime>> = database.crimeDao().getCrimes()
 

@@ -1,11 +1,11 @@
 package com.connerbyrne.criminalintent
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.text.Selection
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,8 +21,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.connerbyrne.criminalintent.databinding.FragmentCrimeDetailBinding
 import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.util.UUID
+import android.text.format.DateFormat
+import android.provider.Settings.System.DATE_FORMAT
+import kotlinx.coroutines.selects.select
 import java.util.Date
 
 private const val DATE_FORMAT = "EEE, dd, mm"
@@ -68,13 +69,21 @@ class CrimeDetailFragment : Fragment() {
                 }
             }
 
-//            crimeDate.apply{
-//                //text = crime.date.toString()
-//                crimeDate.isEnabled = false
-//            }
-
             crimeSuspect.setOnClickListener {
                 selectSuspect.launch(null)
+            }
+
+            val selectSuspectIntent = selectSuspect.contract.createIntent(
+                requireContext(),
+                null
+            )
+            crimeSuspect.isEnabled = canResolveIntent(selectSuspectIntent)
+            setFragmentResultListener(
+                DatePickerFragment.REQUEST_KEY_DATE
+            ){requestKey, bundle ->
+                //TODO
+                val newDate = bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as Date
+                crimeDetailViewModel.updateCrime { it.copy(date = newDate) }
             }
 
             crimeSolved.setOnCheckedChangeListener{_, isChecked ->
@@ -114,7 +123,6 @@ class CrimeDetailFragment : Fragment() {
             getString(R.string.crime_report_unsolved)
         }
         val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
-        return dateString
 
         val suspectString = if (crime.suspect.isBlank()) {
             getString(R.string.crime_report_no_suspect)
@@ -143,25 +151,26 @@ class CrimeDetailFragment : Fragment() {
             crimeSolved.isChecked = crime.isSolved
             crimeReport.setOnClickListener {
                 val reportIntent = Intent(Intent.ACTION_SEND).apply {
-                    tupe = "text/plain"
+                    type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, getCrimeReport(crime))
                     putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject))
                 }
                 val chooserIntent = Intent.createChooser(
-                    reportIntent, getString(R.string.crime_report_subject)
+                    reportIntent, getString(R.string.send_report)
                 )
                 startActivity(chooserIntent)
             }
-        }
-        crimeSuspect.text = crime.suspect.ifEmpty {
-            getString(R.string.crime_suspect_text)
+            crimeSuspect.text = crime.suspect.ifEmpty {
+                getString(R.string.crime_suspect_text)
+            }
         }
     }
 
     private fun parseContactSelection(contractUri: Uri) {
         val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
 
-        val queryCursor = requireActivity().contentResolver.query(contractUri, queryFields, null, null, null)
+        val queryCursor = requireActivity().contentResolver
+            .query(contractUri, queryFields, null, null, null)
 
         queryCursor?.use{ cursor ->
             if (cursor.moveToFirst()) {
@@ -172,6 +181,16 @@ class CrimeDetailFragment : Fragment() {
             }
 
         }
+    }
+
+    private fun canResolveIntent(intent : Intent): Boolean {
+        intent.addCategory(Intent.CATEGORY_HOME)
+        val packageManager: PackageManager = requireActivity().packageManager
+        val resolvedActivity: ResolveInfo? =
+            packageManager.resolveActivity(
+                intent, PackageManager.MATCH_DEFAULT_ONLY
+            )
+        return resolvedActivity == null
     }
 }
 
