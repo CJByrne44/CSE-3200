@@ -78,7 +78,6 @@ class CrimeListFragment : Fragment() {
                 showNewCrime()
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -90,6 +89,10 @@ class CrimeListFragment : Fragment() {
                 title = "",
                 date = Date(),
                 isSolved = false
+            )
+            crimeListViewModel.addCrime(newCrime)
+            findNavController().navigate(
+                CrimeListFragmentDirections.showCrimeDetail(newCrime.id)
             )
         }
     }

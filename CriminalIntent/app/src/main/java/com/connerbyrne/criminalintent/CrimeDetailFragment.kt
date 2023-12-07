@@ -25,6 +25,7 @@ import android.text.format.DateFormat
 import android.provider.Settings.System.DATE_FORMAT
 import kotlinx.coroutines.selects.select
 import java.util.Date
+import java.util.UUID
 
 private const val DATE_FORMAT = "EEE, dd, mm"
 //private const val TAG = "CrimeDetailFragment"
@@ -63,7 +64,6 @@ class CrimeDetailFragment : Fragment() {
 
         binding.apply{
             crimeTitle.doOnTextChanged { text, _, _, _->
-                //crime = crime.copy(title = text.toString())
                 crimeDetailViewModel.updateCrime { oldCrime ->
                     oldCrime.copy(title = text.toString())
                 }
@@ -90,6 +90,19 @@ class CrimeDetailFragment : Fragment() {
                 //crime = crime.copy(isSolved = isChecked)
                 crimeDetailViewModel.updateCrime { oldCrime ->
                     oldCrime.copy(isSolved = isChecked)
+                }
+            }
+
+            deleteCrime.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+
+                    crimeDetailViewModel.crime.collect {crime ->
+                        if (crime != null) {
+                            crimeDetailViewModel.deleteCrime(crime)
+                            findNavController().navigateUp()
+                        }
+                    }
+
                 }
             }
         }

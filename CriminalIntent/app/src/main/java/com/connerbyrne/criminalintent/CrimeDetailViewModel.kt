@@ -34,11 +34,13 @@ class CrimeDetailViewModel(crimeId : UUID): ViewModel() {
     // this is a good time to save our data to our databse
     override fun onCleared() {
         super.onCleared()
-        viewModelScope.launch {
-            crime.value?.let {
-                crimeRepository.updateCrime(it)
-            }
+        crime.value?.let {
+            crimeRepository.updateCrime(it)
         }
+    }
+
+    suspend fun deleteCrime(crime: Crime) {
+        crimeRepository.deleteCrime(crime)
     }
 }
 
